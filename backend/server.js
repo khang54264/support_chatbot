@@ -2,11 +2,16 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const dotenv = require('dotenv');
+dotenv.config();
 
 //Khởi tạo ứng dụng
 const app = express();
-
 const PORT = 5000;
+
+const genAI = new GoogleGenerativeAI({ apiKey: "AIzaSyBWzokx5Cw8CTqNgv_ReUe7t6jsjOKXKrk" });
+const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
 const allowedOrigins = ['http://localhost:3000', 'http://localhost:8081', 'http://localhost:8082'];
 
@@ -16,11 +21,28 @@ app.use(cors({
   credentials: true,
 }));
 app.options('*',cors());
+app.use(express.json());
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//Routes
+app.post('/chat', async (req, res) => {
+  const userMessage = req.body.message;
 
+  if (!userMessage) {
+      return res.status(400).json({ error: "Missing 'message' in request" });
+  }
+
+  try {
+      const result = await model.generateContent(userMessage);
+      const botResponse = result.response.text();
+      res.json({ response: botResponse });
+  } catch (error) {
+      console.error("Error generating content:", error);
+      res.status(500).json({ error: error.message });
+  }
+});
+
+//Routes
 
 
 // MongoDB connection   
