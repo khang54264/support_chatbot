@@ -2,16 +2,18 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const dotenv = require('dotenv');
-dotenv.config();
+const { GoogleGenerativeAI  } = require('@google/generative-ai');
+require('dotenv').config();
 
 //Khởi tạo ứng dụng
 const app = express();
 const PORT = 5000;
 
-const genAI = new GoogleGenerativeAI({ apiKey: "AIzaSyBWzokx5Cw8CTqNgv_ReUe7t6jsjOKXKrk" });
-const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+const apiKey = process.env.GOOGLE_API_KEY;
+console.log(process.env.GOOGLE_API_KEY);
+const genAI = new GoogleGenerativeAI ({ apiKey });
+const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
 
 const allowedOrigins = ['http://localhost:3000', 'http://localhost:8081', 'http://localhost:8082'];
 
@@ -20,7 +22,7 @@ app.use(cors({
   methods: ['GET','POST','PUT','DELETE','OPTIONS'], //Các phương thức HTTP được phép
   credentials: true,
 }));
-app.options('*',cors());
+// app.options('*',cors());
 app.use(express.json());
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: true }));
