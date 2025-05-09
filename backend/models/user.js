@@ -1,16 +1,16 @@
 // backend/models/user.js
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-
+//Người dùng
 const userSchema = new Schema({
   username: { type: String, required: true, unique: true, trim: true },
   password: { type: String, required: true },
   email: { type: String, unique: true, trim: true },
   // Các trường khác của người dùng
 }, {
-  timestamps: true, // Tự động tạo createdAt và updatedAt
+  //Thông tin sinh viên
 });
 
-const User = mongoose.model('User', userSchema);
+const user = mongoose.model('user', userSchema);
 
-module.exports = User;
+module.exports = user;
