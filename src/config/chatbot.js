@@ -1,10 +1,10 @@
 // See https://developers.google.com/apps-script/guides/properties
 // for instructions on how to set the API key.
-const {GoogleGenerativeAI, HarmCategory, HarmBlockThreshold} = require('@google/generative-ai');
+import {GoogleGenerativeAI, HarmCategory, HarmBlockThreshold} from '@google/generative-ai';
 const MODEL_NAME = 'gemini-2.5-flash';
 const API_KEY = process.env.CHATBOT_API_KEY;
 
-async function runChat(input) {
+async function runChat(prompt) {
     const genAI = new GoogleGenerativeAI({apiKey: API_KEY});
     const model = genAI.getGenerativeModel({model: MODEL_NAME});
 
@@ -43,9 +43,10 @@ async function runChat(input) {
         ],
     });
 
-    const result = await chat.sendMessage(input);
+    const result = await chat.sendMessage(prompt);
     const response = result.response;
     console.log(response.text());
+    return response.text();
 }
 
 export default runChat;
