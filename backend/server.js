@@ -10,7 +10,6 @@ const app = express();
 const PORT = 5000;
 
 const apiKey = process.env.GOOGLE_API_KEY;
-console.log(process.env.GOOGLE_API_KEY);
 const genAI = new GoogleGenerativeAI ({ apiKey });
 const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
