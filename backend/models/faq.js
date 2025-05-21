@@ -5,9 +5,7 @@ const Schema = mongoose.Schema;
 const faqSchema = new Schema({
   question: { type: String, required: true, trim: true },
   answer: { type: String, required: true, trim: true },
-  // Các trường khác của bộ câu hỏi câu trả lời
-}, {
-  //Thông tin bộ câu hỏi câu trả lời
+  dateupdate: { type: Date, default: Date.now },
 });
 
 const faq = mongoose.model('faq', faqSchema);

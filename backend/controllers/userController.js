@@ -1,5 +1,6 @@
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 // Register a new user
 exports.registerUser = async (req, res) => {
@@ -11,6 +12,12 @@ exports.registerUser = async (req, res) => {
       username: req.body.username,
       password: hashedPassword,
       email: req.body.email,
+      role: req.body.role,
+      fullname: req.body.fullname,
+      dateofbirth: req.body.dateofbirth,
+      gender: req.body.gender,
+      phone: req.body.phone,
+      image: req.body.image,
     });
 
     await user.save();
@@ -36,20 +43,12 @@ exports.loginUser = async (req, res) => {
       return res.status(400).send({ message: 'Invalid credentials' });
     }
 
-    res.send({ message: 'Logged in successfully' });
+    // Generate JWT token
+    const token = jwt.sign({ userId: user._id, role: user.role }, 'your-secret-key', { expiresIn: '1h' });
+
+    res.send({ message: 'Logged in successfully', token: token });
   } catch (error) {
     res.status(500).send(error);
-  }
-};
-
-// Create a new user (This is the original createUser, you might want to remove it or keep it for admin purposes)
-exports.createUser = async (req, res) => {
-  try {
-    const user = new User(req.body);
-    await user.save();
-    res.status(201).send(user);
-  } catch (error) {
-    res.status(400).send(error);
   }
 };
 
@@ -88,6 +87,7 @@ exports.updateUser = async (req, res) => {
     res.status(400).send(error);
   }
 };
+
 
 // Delete a user by ID
 exports.deleteUser = async (req, res) => {

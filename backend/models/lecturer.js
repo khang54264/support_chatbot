@@ -6,10 +6,11 @@ const lecturerSchema = new Schema({
   username: { type: String, required: true, unique: true, trim: true },
   password: { type: String, required: true },
   email: { type: String, unique: true, trim: true },
+  fullname: { type: String, trim: true },
+  gender: { type: String }, // Giới tính
+  phone: { type: String, trim: true },
   department: { type: String }, // Khoa
-  // Các trường khác của giảng viên
-}, {
-  //Thông tin giảng viên
+  image: {type: String, trim: true }, // Hình ảnh
 });
 
 const lecturer = mongoose.model('lecturer', lecturerSchema);

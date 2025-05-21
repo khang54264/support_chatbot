@@ -3,14 +3,18 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { GoogleGenerativeAI  } = require('@google/generative-ai');
+const jwt = require('jsonwebtoken'); // Import JWT
+const bcrypt = require('bcrypt'); // Import bcrypt
 require('dotenv').config();
 
 // Import routes
 const userRoutes = require('./routes/userRoute');
 const lecturerRoutes = require('./routes/lecturerRoute');
-const logRoutes = require('./routes/logRoute');
+const chatSessionRoutes = require('./routes/chatSessionRoute');
+const chatMessageRoutes = require('./routes/chatMessageRoute');
 const faqRoutes = require('./routes/faqRoute');
-const queryRoutes = require('./routes/queryRoute');
+const notificationRoutes = require('./routes/notificationRoute');
+const User = require('./models/user'); // Import the User model
 
 //Khởi tạo ứng dụng
 const app = express();
@@ -33,6 +37,41 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Admin Login Route
+app.post('/admin/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+
+        // Find the user by username
+        const user = await User.findOne({ username: username });
+
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        // Check if the password is correct
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        // Check if the user has admin role (you might have a role field in your User model)
+        if (user.role !== 'admin') {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+
+        // Generate JWT token
+        const token = jwt.sign({ userId: user._id, role: user.role }, 'your-secret-key', { expiresIn: '1h' });
+
+        res.status(200).json({ message: 'Admin logged in successfully', token: token });
+
+    } catch (error) {
+        console.error('Admin login failed:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 app.post('/chat', async (req, res) => {
   const userMessage = req.body.message;
 
@@ -53,9 +92,10 @@ app.post('/chat', async (req, res) => {
 // Use routes
 app.use(userRoutes);
 app.use(lecturerRoutes);
-app.use(logRoutes);
+app.use(chatMessageRoutes);
+app.use(chatSessionRoutes);
 app.use(faqRoutes);
-app.use(queryRoutes);
+app.use(notificationRoutes);
 
 // MongoDB connection
 mongoose.connect('mongodb://localhost:27017/supportchatbot')
