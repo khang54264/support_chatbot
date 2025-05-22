@@ -16,7 +16,7 @@ const ContextProvider = (props) => {
         setTimeout(function () {
             setResultData(prev => prev + nextWord);
         }, 75*index);
-    }
+    };
 
     const newChat = () => {
         setLoading(false);
@@ -38,6 +38,8 @@ const ContextProvider = (props) => {
         }
         setRecentPrompt(input);
         setPrevPrompt(prev => [...prev, input]);
+
+        //for split the text on ** pattern  and make that text bold basically it is heading
         let responseArray = response.split("**");
         let newResponse = "";
         for(let i = 0; i < responseArray.length; i++) {
@@ -46,14 +48,9 @@ const ContextProvider = (props) => {
             } else {
                 newResponse += "<b>"+responseArray[i]+"</b>";
             }
-            // newArray = responseArray[i].split("\n");
-            // for(let j = 0; j < newArray.length; j++) {
-            //     if(newArray[j] === "") {
-            //         newArray.splice(j, 1);
-            //     }
-            // }
-            // responseArray[i] = newArray;
+            
         }
+        //new line
         let newResponse2 = newResponse.split("*").join("<br/>");
         let newResponseArray = newResponse2.split(" ");
         for(let i = 0; i < newResponseArray.length; i++) {
@@ -81,9 +78,9 @@ const ContextProvider = (props) => {
     };
 
     return (
-        <ContextProvider value={contextValue}>
+        <Context.Provider value={contextValue}>
             {props.children}
-        </ContextProvider>
+        </Context.Provider>
     )
 }
 

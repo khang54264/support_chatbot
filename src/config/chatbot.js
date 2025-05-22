@@ -1,52 +1,73 @@
 // See https://developers.google.com/apps-script/guides/properties
-// for instructions on how to set the API key.
-import {GoogleGenerativeAI, HarmCategory, HarmBlockThreshold} from '@google/generative-ai';
-const MODEL_NAME = 'gemini-2.5-flash';
-const API_KEY = process.env.CHATBOT_API_KEY;
+// for instructions on how to set the API key.\
+// npm install @google/genai mime
+// npm install -D @types/node
+import {GoogleGenAI} from '@google/genai';
+import faqData from './faqData';
 
 async function runChat(prompt) {
-    const genAI = new GoogleGenerativeAI({apiKey: API_KEY});
-    const model = genAI.getGenerativeModel({model: MODEL_NAME});
-
-    const generationConfig = {
-        temperature: 0.9,
-        maxOutputTokens: 2048,
-        topP: 1,
-        topK: 1,
-    };
-
-    const safetySettings = [
-        {
-            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
-        {
-            category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
-        {
-            category: HarmCategory.HARM_CATEGORY_SEXUAL_EXPLICIT,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
-        {
-            category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
-
-    ]
-
-    const chat = model.startChat({
-        generationConfig,
-        safetySettings,
-        history: [
-
-        ],
+    const ai = new GoogleGenAI({
+        apiKey: "AIzaSyCclBNwb3cwzhhZdJlOUDM3-cCUm-0tsA8",
     });
+    const config = {
+        responseMimeType: 'text/html',
+    };
+    const model = 'gemini-1.5-flash';
+    const faq = faqData.find(faqItem => faqItem.question.toLowerCase() === prompt.toLowerCase());
 
-    const result = await chat.sendMessage(prompt);
-    const response = result.response;
-    console.log(response.text());
-    return response.text();
+    if (faq) {
+        console.log("FAQ Matched (Frontend):", faq.answer); // Log the FAQ answer
+        return faq.answer;
+    } else {
+        try{
+            const response = await ai.models.generateContent({
+                model,
+                contents: [{
+                    role: 'user',
+                    parts: [{
+                        text: prompt,
+                    },],
+                },],
+            }, config);
+            console.log(response);
+            return response.text;
+        }catch (error) {
+            console.error("Error communicating with backend:", error);
+            return "Sorry, I don't have an answer for that question. Do you want to send the message to the lecturer ?";
+        }
+    }
 }
 
 export default runChat;
+
+// async function runChat(prompt) {
+//     const ai = new GoogleGenAI({
+//         apiKey: process.env.CHATBOT_API_KEY,
+//     });
+//     const config = {
+//         responseMimeType: 'text/html',
+//     };
+//     const model = 'gemini-1.5-flash';
+
+//     try{
+//         const response = await ai.models.generateContent({
+//             model,
+//             contents: [{
+//                 role: 'user',
+//                 parts: [{
+//                     text: prompt,
+//                 },],
+//             },],
+//         }, config);
+//     console.log(response);
+//     return response.text;
+//   }catch (error) {
+//     console.error("Error communicating with backend:", error);
+//     return "Error: Could not get response from chatbot.";
+//   }
+   
+
+//     return ""   ;
+// }
+
+// export default runChat;

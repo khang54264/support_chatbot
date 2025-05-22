@@ -22,19 +22,19 @@ const Main = () => {
                     <p>How can I help you today?</p>
                 </div>
                 <div className="cards">
-                    <div className="card">
-                        <p>Where is Hung Yen University of Technology and Education ?</p>
+                    <div onClick={()=>onSent("Where is University of Technology and Education Hung Yen?")} className="card">
+                        <p>Where is University of Technology and Education Hung Yen?</p>
                         <img src={assets.compass_icon} alt=""/>
                     </div>
-                    <div className="card">
-                        <p>Tell me about Hung Yen University of Technology and Education</p>
+                    <div onClick={()=>onSent("Tell me about University of Technology and Education Hung Yen")} className="card">
+                        <p>Tell me about University of Technology and Education Hung Yen </p>
                         <img src={assets.bulb_icon} alt=""/>
                     </div>
-                    <div className="card">
+                    <div onClick={()=>onSent("Tell me about administrative procedures or paperworks")} className="card">
                         <p>Tell me about administrative procedures or paperworks</p>
                         <img src={assets.message_icon} alt=""/>
                     </div>
-                    <div className="card">
+                    <div onClick={()=>onSent("Tell me about applying for school admission")} className="card">
                         <p>Tell me about applying for school admission</p>
                         <img src={assets.code_icon} alt=""/>
                     </div>
@@ -53,7 +53,7 @@ const Main = () => {
                             <hr />  
                             <hr />
                         </div>
-                        :<p dangerouslySetInnerHTML={{_html:resultData}}>{resultData}</p>
+                        :<p dangerouslySetInnerHTML={{__html:resultData}}></p>
                         }                        
                     </div>
                 </div>
