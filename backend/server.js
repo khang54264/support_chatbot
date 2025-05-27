@@ -27,13 +27,23 @@ const PORT = 5000;
 
 
 // const allowedOrigins = ['http://localhost:3000', 'http://localhost:8081', 'http://localhost:8082','exp://192.168.1.73:19000','*'];
-const allowedOrigins = ['*'];
+// const allowedOrigins = ['*'];
+// app.use(cors({
+//   origin: allowedOrigins, //Kết nối tới frontend
+//   methods: ['GET','POST','PUT','DELETE','OPTIONS'], //Các phương thức HTTP được phép
+//   credentials: true,
+// }));
+
 app.use(cors({
-  origin: allowedOrigins, //Kết nối tới frontend
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'], //Các phương thức HTTP được phép
-  credentials: true,
+  origin: function (origin, callback) {
+    callback(null, origin); // Cho phép tất cả origin
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true
 }));
-// app.options('*',cors());
+
+app.options('*',cors());
+
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
