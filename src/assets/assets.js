@@ -1,35 +1,20 @@
-import bulb_icon from './bulb_icon.png';
-import code_icon from './code_icon.png';
-import compass_icon from './compass_icon.png';
-import gallery_icon from './gallery_icon.png';
-import gallery_icon_2 from './gallery_icon_2.png';
-import google_gemini_icon from './google_gemini_icon.png';
-import history_icon from './history_icon.png';
-import menu_icon from './menu_icon.png';
-import message_icon from './message_icon.png';
-import mic_icon from './mic_icon.png';
-import plus_icon from './plus_icon.png';
-import question_icon from './question_icon.png';
-import send_icon from './send_icon.png';
-import setting_icon from './setting_icon.png';
-import user_icon from './user_icon.png';
-import youtube_icon from './youtube_icon.png';
-
 export const assets = {
-    bulb_icon,
-    code_icon,
-    compass_icon,
-    gallery_icon,
-    gallery_icon_2,
-    google_gemini_icon,
-    history_icon,
-    menu_icon,
-    message_icon,
-    mic_icon,
-    plus_icon,
-    question_icon,
-    send_icon,
-    setting_icon,
-    user_icon,
-    youtube_icon
+    user_icon: require('./user_icon.png'),
+    menu_icon: require('./menu_icon.png'),
+    plus_icon: require('./plus_icon.png'),
+    message_icon: require('./message_icon.png'),
+    question_icon: require('./question_icon.png'),
+    history_icon: require('./history_icon.png'),
+    setting_icon: require('./setting_icon.png'),
+    compass_icon: require('./compass_icon.png'),
+    bulb_icon: require('./bulb_icon.png'),
+    code_icon: require('./code_icon.png'),
+    gallery_icon_2: require('./gallery_icon_2.png'),
+    gallery_icon: require('./gallery_icon.png'),
+    google_gemini_icon: require('./google_gemini_icon.png'),
+    mic_icon: require('./mic_icon.png'),
+    send_icon: require('./send_icon.png'),
+    setting_icon: require('./setting_icon.png'),
+    user_icon: require('./user_icon.png'),
+    youtube_icon: require('./youtube_icon.png'),
 };

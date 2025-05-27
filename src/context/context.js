@@ -1,87 +1,86 @@
-import {createContext, useState} from 'react';
-import runChat from '../config/chatbot';
+// filepath: d:\DATN\supportchatbot\frontenduser\src\context\context.js
+import React, { createContext, useState, useContext } from 'react';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const Context = createContext();
 
-const ContextProvider = (props) => {
-
-    const [input, setInput] = useState("");
-    const [recentPrompt, setRecentPrompt] = useState("");
-    const [prevPrompt, setPrevPrompt] = useState([]);
+const ContextProvider = ({ children }) => {
+    const [input, setInput] = useState('');
+    const [recentPrompt, setRecentPrompt] = useState('');
+    const [resultData, setResultData] = useState('');
     const [showResult, setShowResult] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [resultData, setResultData] = useState("");
+    const [prevPrompt, setPrevPrompt] = useState([]);
+    const [chatMessages, setChatMessages] = useState([]);
+    const [selectedChatSession, setSelectedChatSession] = useState(null);
+    const [reloadChatSessions, setReloadChatSessions] = useState(false);
 
-    const delayPara = (index, nextWord) => {
-        setTimeout(function () {
-            setResultData(prev => prev + nextWord);
-        }, 75*index);
+    const onSent = async (prompt) => {
+        const userPrompt = prompt || input;
+        if (!userPrompt) return;
+
+        setShowResult(true);
+        setLoading(true);
+        setRecentPrompt(userPrompt);
+        setInput('');
+
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+            const response = await axios.post('http://192.168.1.96:5000/chat', {
+                message: userPrompt,
+                chatSessionId: selectedChatSession ? selectedChatSession._id : null // Send chatSessionId if it exists
+            }, {
+                headers: {
+                    Authorization: token,
+                },
+            });
+            setResultData(response.data.response);
+            setPrevPrompt(prev => [...prev, userPrompt]);
+            setChatMessages(prev => [...prev, { sender_type: 'user', content: userPrompt, timestamp: new Date() }, { sender_type: 'chatbot', content: response.data.response, timestamp: new Date() }]); // Add user and bot messages to chat
+            if (!selectedChatSession) {
+                setSelectedChatSession({ _id: response.data.chatSession }); // Set selectedChatSession after creating a new chat
+            }
+            setReloadChatSessions(prev => !prev);
+        } catch (error) {
+            console.error("Error during chatbot interaction:", error);
+            setResultData("Sorry, there was an error processing your request.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     const newChat = () => {
-        setLoading(false);
         setShowResult(false);
-    }
-
-    const onSent = async (prompt) => {
-        setResultData("");
-        setLoading(true);
-        setShowResult(true);
-        let response;
-        if (prompt !== undefined) {
-            response = await runChat(prompt);
-            setRecentPrompt(prompt);
-        } else {
-            setPrevPrompt(prev => [...prev, input]);
-            setRecentPrompt(input);
-            response = await runChat(input);
-        }
-        setRecentPrompt(input);
-        setPrevPrompt(prev => [...prev, input]);
-
-        //for split the text on ** pattern  and make that text bold basically it is heading
-        let responseArray = response.split("**");
-        let newResponse = "";
-        for(let i = 0; i < responseArray.length; i++) {
-            if(i===0 || i%2!==1) {
-                newResponse += responseArray[i];
-            } else {
-                newResponse += "<b>"+responseArray[i]+"</b>";
-            }
-            
-        }
-        //new line
-        let newResponse2 = newResponse.split("*").join("<br/>");
-        let newResponseArray = newResponse2.split(" ");
-        for(let i = 0; i < newResponseArray.length; i++) {
-            const nextWord = newResponseArray[i];
-            delayPara(i, nextWord + " ");
-        }
-        setLoading(false);
-        setInput("");
-    }
-
-    // onSent("About Hung Yen University of Technology and Education ?");
+        setResultData('');
+        setRecentPrompt('');
+        setChatMessages([]); // Clear chat messages
+        setSelectedChatSession(null); // Reset selected chat session
+    };
 
     const contextValue = {
-        prevPrompt,
-        setPrevPrompt,
-        onSent,
-        setRecentPrompt,
-        recentPrompt,
-        showResult,
-        loading,
-        resultData,
         input,
         setInput,
+        onSent,
+        recentPrompt,
+        setRecentPrompt,
+        resultData,
+        showResult,
+        loading,
+        prevPrompt,
         newChat,
+        chatMessages, // Add chatMessages to context
+        setChatMessages, // Add setChatMessages to context
+        selectedChatSession,
+        setSelectedChatSession,
+        reloadChatSessions,
     };
 
     return (
         <Context.Provider value={contextValue}>
-            {props.children}
+            {children}
         </Context.Provider>
-    )
-}
+    );
+};
 
 export default ContextProvider;
