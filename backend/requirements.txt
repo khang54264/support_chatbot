@@ -1,0 +1,9 @@
+express
+mongoose
+cors
+body-parser
+@google/generative-ai
+jsonwebtoken
+bcrypt
+express-session
+dotenv

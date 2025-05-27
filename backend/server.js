@@ -26,8 +26,8 @@ const app = express();
 const PORT = 5000;
 
 
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:8081', 'http://localhost:8082','exp://192.168.1.73:19000'];
-
+// const allowedOrigins = ['http://localhost:3000', 'http://localhost:8081', 'http://localhost:8082','exp://192.168.1.73:19000','*'];
+const allowedOrigins = ['*'];
 app.use(cors({
   origin: allowedOrigins, //Kết nối tới frontend
   methods: ['GET','POST','PUT','DELETE','OPTIONS'], //Các phương thức HTTP được phép
@@ -89,9 +89,9 @@ app.use(faqRoutes);
 app.use(notificationRoutes);
 app.use(chatRoutes);
 app.use(chatbotRoute); // Use the chatbot route
-
+//mongodb+srv://xviruss2003:22112003@cluster0.8gm24q7.mongodb.net/
 // MongoDB connection
-mongoose.connect('mongodb://localhost:27017/supportchatbot')
+mongoose.connect('mongodb+srv://xviruss2003:22112003@cluster0.8gm24q7.mongodb.net/supportchatbot')
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 

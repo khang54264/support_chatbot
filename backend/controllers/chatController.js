@@ -183,7 +183,7 @@ exports.generateChatResponse = async (req, res) => {
       console.log("Chat session unfound");
       return res.status(404).send();
     }
-
+  
     // Populate the messages array
     await chatsession.populate({
       path: 'messages',
