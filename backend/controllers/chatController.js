@@ -87,7 +87,7 @@ exports.generateChatResponse = async (req, res) => {
     const model = 'gemini-1.5-flash';
     //FAQ Not Found, call Gemini API
     console.log("No FAQ found, calling Gemini API");
-    let result ='';
+    var  result ='';
     try{
         const response = await genAI.models.generateContent({
             model,
