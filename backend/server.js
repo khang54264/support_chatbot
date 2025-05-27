@@ -5,7 +5,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const { GoogleGenerativeAI  } = require('@google/generative-ai');
 const jwt = require('jsonwebtoken'); // Import JWT
-const bcrypt = require('bcrypt'); // Import bcrypt
+const bcrypt = require('bcryptjs'); // Import bcrypt
 const session = require('express-session');
 require('dotenv').config();
 

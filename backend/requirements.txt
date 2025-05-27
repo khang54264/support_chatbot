@@ -2,7 +2,7 @@
 @google/generative-ai
 @xenova/transformers
 axios
-bcrypt
+bcryptjs
 body-parser
 cors
 dotenv
