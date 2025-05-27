@@ -1,20 +1,16 @@
+// filepath: d:\DATN\supportchatbot\backend\routes\chatSessionRoute.js
 const express = require('express');
 const router = express.Router();
 const chatSessionController = require('../controllers/chatSessionController');
+const verifyToken = require('../middleware/authMiddleware');
 
-// Create a new chat Session
-router.post('/chatSessions', chatSessionController.createChatSession);
+// Get all chat sessions for a user
+router.get('/chatSessions/user', verifyToken, chatSessionController.getAllChatSessionsForUser);
 
-// Get all chat Sessions
-router.get('/chatSessions', chatSessionController.getAllChatSessions);
+// Get a chat session by ID
+router.get('/chatSessions/:id', verifyToken, chatSessionController.getChatSessionById);
 
-// Get a chat Session by ID
-router.get('/chatSessions/:id', chatSessionController.getChatSessionById);
-
-// Update a chat Session by ID
-router.put('/chatSessions/:id', chatSessionController.updateChatSession);
-
-// Delete a chat Session by ID
-router.delete('/chatSessions/:id', chatSessionController.deleteChatSession);
+// Delete a chat session by ID
+router.delete('/chatSessions/:id', verifyToken, chatSessionController.deleteChatSession);
 
 module.exports = router;

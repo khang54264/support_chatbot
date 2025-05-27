@@ -1,3 +1,4 @@
+// filepath: d:\DATN\supportchatbot\backend\server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -5,6 +6,7 @@ const bodyParser = require('body-parser');
 const { GoogleGenerativeAI  } = require('@google/generative-ai');
 const jwt = require('jsonwebtoken'); // Import JWT
 const bcrypt = require('bcrypt'); // Import bcrypt
+const session = require('express-session');
 require('dotenv').config();
 
 // Import routes
@@ -14,18 +16,17 @@ const chatSessionRoutes = require('./routes/chatSessionRoute');
 const chatMessageRoutes = require('./routes/chatMessageRoute');
 const faqRoutes = require('./routes/faqRoute');
 const notificationRoutes = require('./routes/notificationRoute');
-const User = require('./models/user'); // Import the User model
+const User = require('./models/user');
+const chatRoutes = require('./routes/chatRoute');
+const verifyToken = require('./middleware/authMiddleware'); // Import the middleware
+const chatbotRoute = require('./routes/chatbotRoute'); // Import the chatbot route
 
 //Khởi tạo ứng dụng
 const app = express();
 const PORT = 5000;
 
-const apiKey = process.env.CHATBOT_API_KEY;
-const genAI = new GoogleGenerativeAI ({ apiKey });
-const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
-
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:8081', 'http://localhost:8082'];
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:8081', 'http://localhost:8082','exp://192.168.1.73:19000'];
 
 app.use(cors({
   origin: allowedOrigins, //Kết nối tới frontend
@@ -39,55 +40,45 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Admin Login Route
 app.post('/admin/login', async (req, res) => {
-    try {
-        const { username, password } = req.body;
+        try {
+            const { username, password } = req.body;
 
-        // Find the user by username
-        const user = await User.findOne({ username: username });
+            // Find the user by username
+            const user = await User.findOne({ username: username });
 
-        if (!user) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            if (!user) {
+                return res.status(401).json({ message: 'Invalid credentials' });
+            }
+
+            // Check if the password is correct
+            const isPasswordValid = await bcrypt.compare(password, user.password);
+
+            if (!isPasswordValid) {
+                return res.status(401).json({ message: 'Invalid credentials' });
+            }
+
+            // Check if the user has admin role (you might have a role field in your User model)
+            if (user.role !== 'admin') {
+                return res.status(403).json({ message: 'Unauthorized' });
+            }
+
+            // Generate JWT token
+            const token = jwt.sign({ userId: user._id, role: user.role }, 'your-secret-key', { expiresIn: '1h' });
+
+            res.status(200).json({ message: 'Admin logged in successfully', token: token });
+
+        } catch (error) {
+            console.error('Admin login failed:', error);
+            res.status(500).json({ message: 'Internal server error' });
         }
+    });
 
-        // Check if the password is correct
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-
-        if (!isPasswordValid) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
-
-        // Check if the user has admin role (you might have a role field in your User model)
-        if (user.role !== 'admin') {
-            return res.status(403).json({ message: 'Unauthorized' });
-        }
-
-        // Generate JWT token
-        const token = jwt.sign({ userId: user._id, role: user.role }, 'your-secret-key', { expiresIn: '1h' });
-
-        res.status(200).json({ message: 'Admin logged in successfully', token: token });
-
-    } catch (error) {
-        console.error('Admin login failed:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-});
-
-app.post('/chat', async (req, res) => {
-  const userMessage = req.body.message;
-
-  if (!userMessage) {
-      return res.status(400).json({ error: "Missing 'message' in request" });
-  }
-
-  try {
-      const result = await model.generateContent(userMessage);
-      const botResponse = result.response.text();
-      res.json({ response: botResponse });
-  } catch (error) {
-      console.error("Error generating content:", error);
-      res.status(500).json({ error: error.message });
-  }
-});
+app.use(session({
+  secret: 'your-secret-key', // Replace with a strong secret
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // Set to true in production with HTTPS
+}));
 
 // Use routes
 app.use(userRoutes);
@@ -96,6 +87,8 @@ app.use(chatMessageRoutes);
 app.use(chatSessionRoutes);
 app.use(faqRoutes);
 app.use(notificationRoutes);
+app.use(chatRoutes);
+app.use(chatbotRoute); // Use the chatbot route
 
 // MongoDB connection
 mongoose.connect('mongodb://localhost:27017/supportchatbot')
@@ -104,9 +97,9 @@ mongoose.connect('mongodb://localhost:27017/supportchatbot')
 
 // Sample route
 app.get('/', (req, res) => {
-    res.send('Backend is running');
-});
+        res.send('Backend is running');
+    });
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+        console.log(`Server is running on port ${PORT}`);
+    });

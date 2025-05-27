@@ -13,6 +13,8 @@ exports.createFaq = async (req, res) => {
 
 // Get all faqs
 exports.getAllFaqs = async (req, res) => {
+  console.log("getAllFaqs called");
+  console.log("Request:", req); // Log the entire request object
   try {
     const faqs = await Faq.find({});
     res.send(faqs);

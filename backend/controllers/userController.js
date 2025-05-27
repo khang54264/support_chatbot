@@ -46,7 +46,7 @@ exports.loginUser = async (req, res) => {
     // Generate JWT token
     const token = jwt.sign({ userId: user._id, role: user.role }, 'your-secret-key', { expiresIn: '1h' });
 
-    res.send({ message: 'Logged in successfully', token: token });
+    res.send({ message: 'Logged in successfully', token: token, userId: user._id }); // Send userId
   } catch (error) {
     res.status(500).send(error);
   }
@@ -78,7 +78,19 @@ exports.getUserById = async (req, res) => {
 // Update a user by ID
 exports.updateUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const { password, ...updateData } = req.body; // Separate password from other data
+    let hashedPassword;
+
+    if (password) {
+      // Hash the new password
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
+
+    const user = await User.findByIdAndUpdate(req.params.id, {
+      ...updateData,
+      ...(hashedPassword && { password: hashedPassword }) // Only update password if a new one is provided
+    }, { new: true, runValidators: true });
+
     if (!user) {
       return res.status(404).send();
     }

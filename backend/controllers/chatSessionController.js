@@ -1,49 +1,45 @@
+// filepath: d:\DATN\supportchatbot\backend\controllers\chatSessionController.js
 const ChatSession = require('../models/chatsession');
+const ChatMessage = require('../models/chatmessage');
 
-// Create a new Chat Session
-exports.createChatSession = async (req, res) => {
+// Get all Chat Sessions for a user
+exports.getAllChatSessionsForUser = async (req, res) => {
   try {
-    const chatsession = new ChatSession(req.body);
-    await chatsession.save();
-    res.status(201).send(query);
-  } catch (error) {
-    res.status(400).send(error);
-  }
-};
+    const userId = req.user.userId; // Get user ID from JWT
+    const chatSessions = await ChatSession.find({ uid: userId })
+      .sort({ timestamp: -1 }) // Sort by timestamp in descending order
+      .limit(10); // Limit to the most recent 10 sessions
 
-// Get all Chat Sessions
-exports.getAllChatSessions = async (req, res) => {
-  try {
-    const chatsessions = await ChatSession.find({});
-    res.send(chatsessions);
+    res.send(chatSessions);
   } catch (error) {
+    console.error("Error getting chat sessions:", error);
     res.status(500).send(error);
   }
 };
 
-// Get a Chat Session by ID
+// Get a Chat Session by ID and populate messages
 exports.getChatSessionById = async (req, res) => {
   try {
     const chatsession = await ChatSession.findById(req.params.id);
-    if (!chatsession) {
-      return res.status(404).send();
-    }
-    res.send(chatsession);
-  } catch (error) {
-    res.status(500).send(error);
-  }
-};
+    console.log("Chat session found:", chatsession);
 
-// Update a chat session by ID
-exports.updateChatSession = async (req, res) => {
-  try {
-    const chatsession = await ChatSession.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
     if (!chatsession) {
+      console.log("Chat session unfound:");
       return res.status(404).send();
     }
+
+    // Populate the messages array
+    await chatsession.populate({
+      path: 'messages',
+      model: 'chatMessage',
+      options: { sort: { timestamp: 1 } }
+    });
+    console.log("Chat session populated with messages:", chatsession.messages);
+
     res.send(chatsession);
   } catch (error) {
-    res.status(400).send(error);
+    console.error("Error getting chat session by ID:", error);
+    res.status(500).send(error);
   }
 };
 
@@ -56,6 +52,7 @@ exports.deleteChatSession = async (req, res) => {
     }
     res.send({ message: 'Chat Session deleted' });
   } catch (error) {
+    console.error("Error deleting chat session:", error);
     res.status(500).send(error);
   }
 };
