@@ -27,7 +27,7 @@ const ContextProvider = ({ children }) => {
 
         try {
             const token = await AsyncStorage.getItem('userToken');
-            const response = await axios.post('http://192.168.1.96:5000/chat', {
+            const response = await axios.post('https://support-chatbot-5vca.onrender.com/chat', {
                 message: userPrompt,
                 chatSessionId: selectedChatSession ? selectedChatSession._id : null // Send chatSessionId if it exists
             }, {
